@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace LoremIpsum
 {
@@ -39,9 +40,31 @@ namespace LoremIpsum
                     response.StatusDescription));
 
                 StreamReader sr = new StreamReader(response.GetResponseStream());
+                JsonTextReader tr = new JsonTextReader(sr);
+                JsonSerializer ser = new JsonSerializer();
 
-                return JsonConvert.DeserializeObject<LoremIpsum>(sr.ReadToEnd());
+                return ser.Deserialize<LoremIpsum>(tr);
             }
+        }
+
+        public async static Task<LoremIpsum> GetNewLipsumAsync(LipsumType lipsumType, int amount, bool startWithLoremIpsum = true, ICredentials proxyCredentials = null)
+        {
+            string requestUrl = string.Format(LIPSUM_JSON_URL, amount, startWithLoremIpsum ? "yes" : "no", lipsumType.GetDescription());
+
+            HttpWebRequest request = WebRequest.Create(requestUrl) as HttpWebRequest;
+
+            if (proxyCredentials != null)
+            {
+                request.Proxy.Credentials = proxyCredentials;
+            }
+
+            var response = await request.GetResponseAsync();
+
+            StreamReader sr = new StreamReader(response.GetResponseStream());
+            JsonTextReader tr = new JsonTextReader(sr);
+            JsonSerializer ser = new JsonSerializer();
+
+            return ser.Deserialize<LoremIpsum>(tr);
         }
 
         /// <summary>
