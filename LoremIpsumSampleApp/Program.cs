@@ -12,8 +12,8 @@ namespace LoremIpsum
             for (int i = 0; i < 10; i++)
             {
                 // toggle between words and paragraphs
-                bool isEven = i % 2 == 0;
-                bool isThird = i % 3 == 0;
+                bool isEven = (i % 2).Equals(0); // used this because markdown had trouble with double equal signs
+                bool isThird = (i % 3).Equals(0);
                 LipsumType lipsumType = isEven ? LipsumType.Paragraphs : LipsumType.Words;
 
                 // only start with Lorem Ipsum every third call
