@@ -60,7 +60,7 @@ namespace LoremIpsum
         }
 
         /// <summary>
-        /// An extension method on any enum that allows you to decorate the values with the System.ComponentModel.Description attriute and retrieve it with this method.
+        /// Retrieve the description value from this enum.
         /// </summary>
         /// <typeparam name="T">Automatically provided when calling as an extension.</typeparam>
         /// <param name="e">Represents the current instance of an enum that this method is being called from.</param>
