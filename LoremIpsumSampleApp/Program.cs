@@ -17,7 +17,7 @@ namespace LoremIpsum
                 LipsumType lipsumType = isEven ? LipsumType.Paragraphs : LipsumType.Words;
 
                 // only start with Lorem Ipsum every third call
-                Debug.WriteLine(LoremIpsumUtil.GetNewLipsum(lipsumType, 7, isThird).feed.lipsum + Environment.NewLine);
+                Debug.WriteLine(LoremIpsumUtil.GetNewLipsum(lipsumType, 7, isThird).Feed.Lipsum + Environment.NewLine);
 
                 // sleep for 1 second to give the server a rest
                 Thread.Sleep(1000);
