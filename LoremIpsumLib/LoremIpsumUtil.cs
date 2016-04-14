@@ -90,17 +90,26 @@ namespace LoremIpsum
         /// <returns></returns>
         public static string GetDescription<T>(this T e) where T : IConvertible
         {
-            Array values = System.Enum.GetValues(e.GetType());
             string description = null;
 
-            foreach (int val in values)
+            if (e is Enum)
             {
-                if (val == e.ToInt32(CultureInfo.InvariantCulture))
+                Type type = e.GetType();
+                Array values = System.Enum.GetValues(type);
+
+                foreach (int val in values)
                 {
-                    var type = e.GetType();
-                    var memInfo = type.GetMember(Enum.GetName(type, val));
-                    var attributes = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
-                    description = ((DescriptionAttribute)attributes[0]).Description;
+                    if (val == e.ToInt32(CultureInfo.InvariantCulture))
+                    {
+                        var memInfo = type.GetMember(type.GetEnumName(val));
+                        var attributes = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
+                        if(attributes.Length > 0)
+                        {
+                            description = ((DescriptionAttribute)attributes[0]).Description;
+                        }
+
+                        break;
+                    }
                 }
             }
 
