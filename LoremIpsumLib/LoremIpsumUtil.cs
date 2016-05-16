@@ -10,7 +10,7 @@ namespace LoremIpsum
 {
     public static class LoremIpsumUtil
     {
-        public static readonly string LIPSUM_JSON_URL = "http://lipsum.com/feed/json?amount={0}&start={1}&what={2}";
+        public static readonly string LIPSUM_JSON_URL = "http://api.lipsum.com/[YOUR_API_KEY]/json?amount={0}&start={1}&what={2}";
 
         /// <summary>
         /// Gets a new Lorem Ipsum result object from the JSON endpoint at http://lipsum.com.
