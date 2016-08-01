@@ -5,7 +5,7 @@ Lorem Ipsum taken from [www.lipsum.com](http://www.lipsum.com) courtesy of James
 
 To get an API key for use with this library, please contact [Lipsum Help](mailto:help@lipsum.com).
 
-### Release 2.0
+### Release 2.0.1
 
 **This release introduces breaking changes from v1.0.**
 
