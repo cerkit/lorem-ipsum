@@ -1,28 +1,51 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-using System.Globalization;
+using System.Configuration;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace LoremIpsum
 {
-    public static class LoremIpsumUtil
+	public class LoremIpsumFactory
     {
-        public static readonly string LIPSUM_JSON_URL = "http://api.lipsum.com/[YOUR_API_KEY]/json?amount={0}&start={1}&what={2}";
+		public static readonly string APP_KEY_LIPSUM_JSON_API_ENDPOINT = "lipsumJsonApiEndpoint";
 
-        /// <summary>
-        /// Gets a new Lorem Ipsum result object from the JSON endpoint at http://lipsum.com.
-        /// </summary>
-        /// <param name="lipsumType">The type of result to get from the api. See <see cref="LipsumType"/></param>
-        /// <param name="amount">An integer value representing how many of the given type to receive from the service.</param>
-        /// <param name="startWithLoremIpsum">true to start with the "Lorem Ipsum" text or false to get a random result.</param>
-        /// <param name="proxyCredentials">Use <see cref="System.Net.NetworkCredential"/>, <see cref="System.Net.CredentialCache.DefaultCredentials"/>, or <see cref="System.Net.CredentialCache.DefaultNetworkCredentials"/> to send to your proxy server.</param>
-        /// <returns>An instance of the <see cref="LoremIpsum"/> class representing the data that was returned from the api.</returns>
-        public static LoremIpsum GetNewLipsum(LipsumType lipsumType, int amount, bool startWithLoremIpsum = true, ICredentials proxyCredentials = null)
+		public LoremIpsumFactory() { }
+
+		public string ApiKey { get; set; }
+		
+		/// <summary>
+		/// The full Url to the JSON API for Lipsum.com.
+		/// </summary>
+		private string LipsumJsonEndpoint
+		{
+			get
+			{
+				if (this.ApiKey != null)
+				{
+					return string.Format(ConfigurationManager.AppSettings[APP_KEY_LIPSUM_JSON_API_ENDPOINT], this.ApiKey);
+				}
+				else
+				{
+					throw new InvalidDataException("The ApiKey property cannot be null");
+				}
+			}
+		}
+
+		/// <summary>
+		/// Gets a new Lorem Ipsum result object from the JSON endpoint at http://lipsum.com.
+		/// </summary>
+		/// <param name="lipsumType">The type of result to get from the api. See <see cref="LipsumType"/></param>
+		/// <param name="amount">An integer value representing how many of the given type to receive from the service.</param>
+		/// <param name="startWithLoremIpsum">true to start with the "Lorem Ipsum" text or false to get a random result.</param>
+		/// <param name="proxyCredentials">Use <see cref="System.Net.NetworkCredential"/>, <see cref="System.Net.CredentialCache.DefaultCredentials"/>, or <see cref="System.Net.CredentialCache.DefaultNetworkCredentials"/> to send to your proxy server.</param>
+		/// <returns>An instance of the <see cref="LoremIpsum"/> class representing the data that was returned from the api.</returns>
+		public LoremIpsum Create(LipsumType lipsumType, int amount, bool startWithLoremIpsum = true, ICredentials proxyCredentials = null)
         {
-            string requestUrl = string.Format(LIPSUM_JSON_URL, amount, startWithLoremIpsum ? "yes" : "no", lipsumType.GetDescription());
+			// build the JSON request URL
+            string requestUrl = string.Format(this.LipsumJsonEndpoint, amount, startWithLoremIpsum ? "yes" : "no", lipsumType.GetDescription());
 
             HttpWebRequest request = WebRequest.Create(requestUrl) as HttpWebRequest;
 
@@ -30,6 +53,10 @@ namespace LoremIpsum
             {
                 request.Proxy.Credentials = proxyCredentials;
             }
+			else 
+			{
+				request.Proxy.Credentials = CredentialCache.DefaultCredentials;
+			}
 
             using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
             {
@@ -47,9 +74,9 @@ namespace LoremIpsum
             }
         }
 
-        public async static Task<LoremIpsum> GetNewLipsumAsync(LipsumType lipsumType, int amount, bool startWithLoremIpsum = true, ICredentials proxyCredentials = null)
+        public async Task<LoremIpsum> CreateAsync(LipsumType lipsumType, int amount, bool startWithLoremIpsum = true, ICredentials proxyCredentials = null)
         {
-            string requestUrl = string.Format(LIPSUM_JSON_URL, amount, startWithLoremIpsum ? "yes" : "no", lipsumType.GetDescription());
+            string requestUrl = string.Format(this.LipsumJsonEndpoint, amount, startWithLoremIpsum ? "yes" : "no", lipsumType.GetDescription());
 
             HttpWebRequest request = WebRequest.Create(requestUrl) as HttpWebRequest;
 
@@ -66,54 +93,20 @@ namespace LoremIpsum
 
             return ser.Deserialize<LoremIpsum>(tr);
         }
-
-        /// <summary>
-        /// The type of result to retrieve from the JSON endpoint.
-        /// </summary>
-        public enum LipsumType
-        {
-            [Description("words")]
-            Words,
-            [Description("paras")]
-            Paragraphs,
-            [Description("bytes")]
-            Bytes,
-            [Description("lists")]
-            Lists
-        }
-
-        /// <summary>
-        /// Retrieve the description value from this enum.
-        /// </summary>
-        /// <typeparam name="T">Automatically provided when calling as an extension.</typeparam>
-        /// <param name="e">Represents the current instance of an enum that this method is being called from.</param>
-        /// <returns></returns>
-        public static string GetDescription<T>(this T e) where T : IConvertible
-        {
-            string description = null;
-
-            if (e is Enum)
-            {
-                Type type = e.GetType();
-                Array values = System.Enum.GetValues(type);
-
-                foreach (int val in values)
-                {
-                    if (val == e.ToInt32(CultureInfo.InvariantCulture))
-                    {
-                        var memInfo = type.GetMember(type.GetEnumName(val));
-                        var attributes = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
-                        if(attributes.Length > 0)
-                        {
-                            description = ((DescriptionAttribute)attributes[0]).Description;
-                        }
-
-                        break;
-                    }
-                }
-            }
-
-            return description;
-        }
     }
+
+	/// <summary>
+	/// The type of result to retrieve from the JSON endpoint.
+	/// </summary>
+	public enum LipsumType
+	{
+		[Description("words")]
+		Words,
+		[Description("paras")]
+		Paragraphs,
+		[Description("bytes")]
+		Bytes,
+		[Description("lists")]
+		Lists
+	}
 }
