@@ -14,3 +14,11 @@ The sample application has been simplified and the static utility classes have b
 Everything still works the same, except for the name changes. 
 
 Refer to the [sample application](https://github.com/cerkit/lorem-ipsum/blob/master/LoremIpsumSampleApp/Program.cs) for guidance on how to use the latest changes.
+
+
+When you use the library, copy the following application keys from app.config to your application:
+
+```xml
+<add key="lipsumJsonApiEndpoint" value="http://api.lipsum.com/{0}/json?amount={1}&amp;start={2}&amp;what={3}" />
+<add key="lipsumApiKey" value="YOUR_KEY_HERE"/>
+```
