@@ -1,27 +1,31 @@
-﻿using System;
+﻿using System.Configuration;
 using System.Diagnostics;
-using System.Threading;
-using static LoremIpsum.LoremIpsumUtil;
+using System.Net;
 
 namespace LoremIpsum
 {
-    class Program
+	class Program
     {
         static void Main(string[] args)
         {
-            for (int i = 0; i < 10; i++)
-            {
-                // toggle between words and paragraphs
-                bool isEven = (i % 2).Equals(0); // used this because GitHub markdown had trouble with double equal signs
-                bool isThird = (i % 3).Equals(0);
-                LipsumType lipsumType = isEven ? LipsumType.Paragraphs : LipsumType.Words;
+			// create our factory
+			var loremIpsum = new LoremIpsumFactory()
+			{
+				ApiKey = ConfigurationManager.AppSettings["lipsumApiKey"]
+			};
 
-                // only start with Lorem Ipsum every third call
-                Debug.WriteLine(LoremIpsumUtil.GetNewLipsum(lipsumType, 7, isThird).Feed.Lipsum + Environment.NewLine);
+			// the simplest example (get 5 words)
+			var simplestExample = loremIpsum.Create(LipsumType.Words, 5);
+			Debug.WriteLine(simplestExample.Feed.Lipsum);
 
-                // sleep for 1 second to give the server a rest
-                Thread.Sleep(1000);
-            }
+			// a simple example (get 2 paragraphs and don't start with Lorem Ipsum)
+			var simpleExample = loremIpsum.Create(LipsumType.Paragraphs, 2, false);
+			Debug.WriteLine(simpleExample.Feed.Lipsum);
+
+			// an example of using custom Proxy authentication to get 3 words starting with "Lorem Ipsum"
+			var proxyCredentials = new NetworkCredential("username", "password");
+			var customProxyAuth = loremIpsum.Create(LipsumType.Words, 3, true, proxyCredentials);
+			Debug.WriteLine(customProxyAuth.Feed.Lipsum);
         }
     }
 }
