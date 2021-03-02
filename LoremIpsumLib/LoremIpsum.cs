@@ -35,7 +35,7 @@ namespace LoremIpsum
         public string DonateLink { get; set; }
 
         /// <summary>
-        /// A link that should be used when giving attribution fro the service
+        /// A link that should be used when giving attribution for the service
         /// </summary>
         [DataMember(Name = "creditlink")]
         public string CreditLink { get; set; }
